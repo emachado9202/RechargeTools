@@ -1,0 +1,42 @@
+﻿@if (Request.IsAuthenticated)
+{
+    <ul class="navbar-nav mr-auto">
+
+        <li class="nav-item">@Html.ActionLink("Resumen", "Dashboard", "Home", routeValues: null, htmlAttributes: new { @class = "nav-link" })</li>
+
+        <li class="nav-item">@Html.ActionLink("Números", "Index", "Home", routeValues: null, htmlAttributes: new { @class = "nav-link" })</li>
+
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Configuración
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                @if (RechargeTools.Models.Handlers.RoleManager.IsInRole(RechargeTools.Models.Handlers.RoleManager.Editor) || RechargeTools.Models.Handlers.RoleManager.IsInRole(RechargeTools.Models.Handlers.RoleManager.Administrator))
+                {
+                    @Html.ActionLink("Agentes", "Index", "Agent", routeValues: null, htmlAttributes: new { @class = "dropdown-item" })
+
+                }
+
+                @Html.ActionLink("Negocios", "Index", "Business", routeValues: null, htmlAttributes: new { @class = "dropdown-item" })
+                @Html.ActionLink("Registro Actividad", "Logs", "Home", routeValues: null, htmlAttributes: new { @class = "dropdown-item" })
+            </div>
+        </li>
+    </ul>
+    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <ul class="navbar-nav mr-auto navbar-right">
+            <li class="nav-item">
+                @Html.ActionLink("Hola " + User.Identity.GetUserName() + "!", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage", @class = "nav-link" })
+            </li>
+            <li class="nav-item"><a class="nav-link" href="javascript:document.getElementById('logoutForm').submit()">Salir</a></li>
+        </ul>
+    }
+}
+else
+{
+    <ul class="navbar-nav mr-auto navbar-right">
+        <li class="nav-item">@Html.ActionLink("Entrar", "Login", "Account", routeValues: new { returnUrl = Request.Url.AbsoluteUri }, htmlAttributes: new { id = "loginLink", @class = "nav-link" })</li>
+    </ul>
+}

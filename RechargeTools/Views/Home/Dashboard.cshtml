@@ -1,0 +1,49 @@
+﻿@model RechargeTools.Models.Views.DashboardViewModel
+@{
+    ViewBag.Title = "Resumen";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2 class="text-center">Resumen</h2>
+
+<h4 class="text-center">Recargas Agentes</h4>
+<div class="row">
+    @foreach (var agent in Model.Agents)
+    {
+        <div class="col-12 col-lg-6 col-xl">
+            <!-- Card -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+
+                            <!-- Title -->
+                            <h6 class="card-title text-uppercase mb-2">
+                                @agent.Item1
+                            </h6>
+
+                            <!-- Heading -->
+                            <span class="h2 mb-0">
+                                @agent.Item2 <i class="fa fa-caret-right"></i> @agent.Item3
+                            </span>
+                        </div>
+                        <div class="col-auto">
+
+                            <!-- Icon -->
+                            <span class="h2 fa fa-4x fa-call text-muted mb-0"></span>
+                        </div>
+                    </div> <!-- / .row -->
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<h4 class="text-center mt-2">Recargas Pendientes</h4>
+<div class="row">
+    @foreach (var number in Model.PendentNumbers)
+    {
+        <div class="col">
+            @Html.ActionLink($"{number.Item1}", "Index", routeValues: new { agent_select = number.Item2, number_search = number.Item1 })
+        </div>
+    }
+</div>

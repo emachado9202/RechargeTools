@@ -1,0 +1,177 @@
+﻿@model  RechargeTools.Models.Views.BusinessModel
+@{
+    ViewBag.Title = "Trabajadores " + Model.Name;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <h4>Trabajadores</h4>
+    @if (ViewBag.Invitation != null)
+    {
+        <div class="alert alert-success" role="alert">
+            Se ha enviado una invitación a "@ViewBag.Invitation", el mismo será mostrado una vez que acepte la invitación.
+        </div>
+    }
+
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CreatedOn)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CreatedOn)
+        </dd>
+    </dl>
+</div>
+<div class="pull-right btn-editions">
+    <a class="btn btn-success btn-sm ml-lg-1" data-toggle="modal" data-target="#selectModal">Agregar Trabajador</a>
+</div>
+<table id="data-table" class="table table-striped table-bordered" width="100%">
+    <thead>
+        <tr>
+            <th>
+                Nombre
+            </th>
+            <th>
+                Dinero
+            </th>
+            <th>
+                Última Actualización
+            </th>
+            <th class="no-sort">
+            </th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<div class="modal fade" id="selectModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Nuevo Trabajador</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("WorkerInvitation", "Business", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" value="@Model.DT_RowId" name="DT_RowId" />
+                <div class="modal-body text-center">
+                    <h5>Por Invitación</h5>
+                    <p>El usuario recibirá un correo con las intrucciones para su enlace a este negocio. Recomendado cuando ya el trabajador posee una cuenta en otro negocio</p>
+                    <div class="form-group row">
+                        @Html.LabelFor(model => model.EmailInvitation, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-8">
+                            @Html.EditorFor(model => model.EmailInvitation, new { htmlAttributes = new { @class = "form-control ml-2", placeholder = "Correo electrónico" } })
+                            @Html.ValidationMessageFor(model => model.EmailInvitation, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        @Html.LabelFor(model => model.RoleInvitation, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownList("RoleInvitation", new SelectList(ViewBag.Roles, "Id", "Name"), new { @class = "custom-select form-control" })
+                            @Html.ValidationMessageFor(model => model.RoleInvitation, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <hr />
+                    <h5>Crear Usuario</h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Enviar Invitación</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#filter-datatable").change(function () {
+                table.ajax.reload();
+                var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + $(this).val();
+                window.history.pushState({ path: newurl }, '', newurl);
+            });
+
+            $("#filter-exist").change(function () {
+                table.ajax.reload();
+            });
+
+            var table = $("#data-table").DataTable({
+                dom: "lBfrtip",
+                buttons: [],
+                responsive: 0,
+                select: 0,
+                fixedHeader: !0,
+                ajax: {
+                    "url": "/Business/WorkerSearch",
+                    "type": "POST",
+                    "data": function (d) {
+                        d.type = '@Model.DT_RowId'
+                    }
+                },
+                "processing": true,
+                "serverSide": true,
+                columns: [
+                    { data: 'Name' },
+                    { data: 'Cash' },
+                    { data: 'LastUpdated' },
+                    {
+                        "render": function (data, type, JsonResultRow, meta) {
+                            var actions = "";
+                            actions += '<a class=\'btn btn-warning btn-sm\' href=\'/Business/Edit/' + JsonResultRow.DT_RowId + '\'>Editar</a>';
+                            return actions;
+                        }
+                    }
+                ],
+                "rowCallback": function (row, data) {
+                    /* mainView.contents.push(new dataModel(data));*/
+                },
+                "iDisplayLength": 25,
+                "language": {
+                    "sProcessing": "Procesando...",
+                    "sLengthMenu": "Mostrar _MENU_ registros",
+                    "sZeroRecords": "No se encontraron resultados",
+                    "sEmptyTable": "Ningún dato disponible en esta tabla",
+                    "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                    "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+                    "sInfoPostFix": "",
+                    "sSearch": "Buscar:",
+                    "sUrl": "",
+                    "sInfoThousands": ",",
+                    "sLoadingRecords": "Cargando...",
+                    "oPaginate": {
+                        "sFirst": "Primero",
+                        "sLast": "Último",
+                        "sNext": "Siguiente",
+                        "sPrevious": "Anterior"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+                    },
+                    "select": {
+                        "rows": "%d registros seleccionados"
+                    }
+                },
+                "columnDefs": [{
+                    "targets": 'no-sort',
+                    "orderable": false
+                }],
+                "order": [[2, "desc"]]
+            });
+
+        });
+    </script>
+}

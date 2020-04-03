@@ -1,0 +1,71 @@
+﻿@model IEnumerable<RechargeTools.Models.Catalog.Agent>
+
+@{
+    ViewBag.Title = "Categorias";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Agentes</h2>
+
+<div class="row justify-content-end">
+    <a class="btn btn-success" href="@Url.Action("Create")">Crear Nuevo</a>
+</div>
+<div class="table-responsive">
+    <table class="table">
+        <tr>
+            <th data-priority="1">
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th data-priority="1">
+                @Html.DisplayNameFor(model => model.Activated)
+            </th>
+            <th data-priority="2">
+                @Html.DisplayNameFor(model => model.Selected)
+            </th>
+            <th data-priority="1">
+                @Html.DisplayNameFor(model => model.OrderDisplay)
+            </th>
+            <th data-priority="1">
+                @Html.DisplayNameFor(model => model.LastUpdated)
+            </th>
+            <th></th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @if (item.Activated)
+                    {
+                        <span>Si</span>
+                    }
+                    else
+                    {
+                        <span>No</span>
+                    }
+                </td>
+                <td>
+                    @if (item.Selected)
+                    {
+                        <span>Si</span>
+                    }
+                    else
+                    {
+                        <span>No</span>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OrderDisplay)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastUpdated)
+                </td>
+                <td>
+                    @Html.ActionLink("Editar", "Edit", new { id = item.Id })
+                </td>
+            </tr>
+        }
+    </table>
+</div>

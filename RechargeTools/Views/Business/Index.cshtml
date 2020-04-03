@@ -1,0 +1,121 @@
+﻿@{
+    ViewBag.Title = "Agentes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Negocios</h2>
+@if (RoleManager.IsInRole(RoleManager.Editor) || RoleManager.IsInRole(RoleManager.Administrator))
+{
+    <div class="pull-right btn-editions mt-2">
+        <a class="btn btn-success btn-sm ml-lg-1" href="@Url.Action("Create")">Nuevo Negocio</a>
+    </div>
+}
+
+<table id="data-table" class="table table-striped table-bordered" width="100%">
+    <thead>
+        <tr>
+            <th class="no-sort">
+            </th>
+            <th>
+                Nombre
+            </th>
+            <th>
+                Creado el
+            </th>
+            <th>
+                Cant. Trabajadores
+            </th>
+            <th class="no-sort">
+            </th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#filter-datatable").change(function () {
+                table.ajax.reload();
+                var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + $(this).val();
+                window.history.pushState({ path: newurl }, '', newurl);
+            });
+
+            $("#filter-exist").change(function () {
+                table.ajax.reload();
+            });
+
+            var table = $("#data-table").DataTable({
+                dom: "lBfrtip",
+                buttons: [],
+                responsive: 1,
+                select: 0,
+                fixedHeader: !0,
+                ajax: {
+                    "url": "/Business/Search",
+                    "type": "POST",
+                    "data": function (d) {
+                    }
+                },
+                "processing": true,
+                "serverSide": true,
+                columns: [
+                    {
+                        "render": function (data, type, JsonResultRow, meta) {
+                            var actions = "";
+                            return actions;
+                        }
+                    },
+                    { data: 'Name' },
+                    { data: 'CreatedOn' },
+                    { data: 'CountWorkers' },
+                    {
+                        "render": function (data, type, JsonResultRow, meta) {
+                            var actions = "";
+                            actions += '<a class=\'btn btn-primary btn-sm mr-3\' href=\'/Business/View/' + JsonResultRow.DT_RowId + '\'>Trabajadores</a>';
+                            actions += '<a class=\'btn btn-warning btn-sm\' href=\'/Business/Edit/' + JsonResultRow.DT_RowId + '\'>Editar</a>';
+                            return actions;
+                        }
+                    }
+                ],
+                "rowCallback": function (row, data) {
+                    /* mainView.contents.push(new dataModel(data));*/
+                },
+                "iDisplayLength": 25,
+                "language": {
+                    "sProcessing": "Procesando...",
+                    "sLengthMenu": "Mostrar _MENU_ registros",
+                    "sZeroRecords": "No se encontraron resultados",
+                    "sEmptyTable": "Ningún dato disponible en esta tabla",
+                    "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                    "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+                    "sInfoPostFix": "",
+                    "sSearch": "Buscar:",
+                    "sUrl": "",
+                    "sInfoThousands": ",",
+                    "sLoadingRecords": "Cargando...",
+                    "oPaginate": {
+                        "sFirst": "Primero",
+                        "sLast": "Último",
+                        "sNext": "Siguiente",
+                        "sPrevious": "Anterior"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+                    },
+                    "select": {
+                        "rows": "%d registros seleccionados"
+                    }
+                },
+                "columnDefs": [{
+                    "targets": 'no-sort',
+                    "orderable": false
+                }],
+                "order": [[2, "desc"]]
+            });
+
+        });
+    </script>
+}
