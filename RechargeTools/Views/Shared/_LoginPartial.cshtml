@@ -14,6 +14,7 @@
                 @if (RechargeTools.Models.Handlers.RoleManager.IsInRole(RechargeTools.Models.Handlers.RoleManager.Editor) || RechargeTools.Models.Handlers.RoleManager.IsInRole(RechargeTools.Models.Handlers.RoleManager.Administrator))
                 {
                     @Html.ActionLink("Agentes", "Index", "Agent", routeValues: null, htmlAttributes: new { @class = "dropdown-item" })
+                    @Html.ActionLink("Recargas", "Index", "Recharge", routeValues: null, htmlAttributes: new { @class = "dropdown-item" })
 
                 }
 
@@ -27,6 +28,26 @@
         @Html.AntiForgeryToken()
 
         <ul class="navbar-nav mr-auto navbar-right">
+            @if (ViewBag.Recharge != null)
+            {
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tooltip" data-placement="bottom"><span class="d-xl-none d-lg-none">Recarga Actual:</span> @ViewBag.Recharge.Name</a>
+                </li>
+            }
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    @if (ViewBag.BusinessWorking != null)
+                    {
+                        <span>@ViewBag.BusinessWorking.Name</span>
+                    }
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    @foreach (var business in ViewBag.Business)
+                    {
+                        <a class="dropdown-item" href="/home/setbusiness/@business.Id?returnUrl=@Request.RawUrl">@business.Name</a>
+                    }
+                </div>
+            </li>
             <li class="nav-item">
                 @Html.ActionLink("Hola " + User.Identity.GetUserName() + "!", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage", @class = "nav-link" })
             </li>

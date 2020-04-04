@@ -12,8 +12,8 @@ namespace RechargeTools.Models.Catalog
         public string Value { get; set; }
         public string Confirmation { get; set; }
 
-        [ForeignKey("Agent")]
-        public Guid Agent_Id { get; set; }
+        [ForeignKey("RechargeAgent")]
+        public Guid RechargeAgent_Id { get; set; }
 
         [ForeignKey("User")]
         public string User_Id { get; set; }
@@ -22,6 +22,6 @@ namespace RechargeTools.Models.Catalog
         public DateTime UpdatedDate { get; set; }
 
         public virtual User User { get; set; }
-        public virtual Agent Agent { get; set; }
+        public virtual RechargeAgent RechargeAgent { get; set; }
     }
 }

@@ -38,3 +38,7 @@ textarea {
 table.table-bordered.dataTable.fixedHeader-floating {
     margin-top: 56px !important;
 }
+
+.show-inline {
+    display: inline;
+}

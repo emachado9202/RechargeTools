@@ -226,17 +226,6 @@ namespace RechargeTools.Controllers
             {
                 if (filter.order[0].dir.Equals("asc"))
                 {
-                    sort = entity.OrderBy(x => x.Cash);
-                }
-                else
-                {
-                    sort = entity.OrderByDescending(x => x.Cash);
-                }
-            }
-            else if (filter.order[0].column == 2)
-            {
-                if (filter.order[0].dir.Equals("asc"))
-                {
                     sort = entity.OrderBy(x => x.LastUpdated);
                 }
                 else
@@ -272,8 +261,7 @@ namespace RechargeTools.Controllers
                 {
                     DT_RowId = $"{user.Business_Id.ToString()}+{user.User_Id}",
                     Name = user.User.UserName,
-                    LastUpdated = user.LastUpdated.ToString("yyyy-MM-dd hh:mm tt"),
-                    Cash = user.Cash.ToString("#,##0.00")
+                    LastUpdated = user.LastUpdated.ToString("yyyy-MM-dd hh:mm tt")
                 });
             }
 
@@ -338,7 +326,6 @@ namespace RechargeTools.Controllers
                 Business_Id = business_id,
                 IsRoot = false,
                 LastUpdated = DateTime.Now,
-                Cash = 0,
                 Role_Id = RoleId
             });
             await applicationDbContext.SaveChangesAsync();
@@ -366,7 +353,6 @@ namespace RechargeTools.Controllers
                         Business_Id = business_id,
                         IsRoot = false,
                         LastUpdated = DateTime.Now,
-                        Cash = 0,
                         Role_Id = model.RoleId
                     });
                     await applicationDbContext.SaveChangesAsync();

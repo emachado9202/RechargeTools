@@ -20,9 +20,6 @@ namespace RechargeTools.Models.Catalog
         [ForeignKey("Role")]
         public string Role_Id { get; set; }
 
-        [DataType(DataType.Currency)]
-        public decimal Cash { get; set; }
-
         public bool IsRoot { get; set; }
         public DateTime LastUpdated { get; set; }
 

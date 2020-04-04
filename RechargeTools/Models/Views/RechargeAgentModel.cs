@@ -2,14 +2,14 @@
 
 namespace RechargeTools.Models.Views
 {
-    public class BusinessUserModel
+    public class RechargeAgentModel
     {
         public string DT_RowId { get; set; }
 
         [DisplayName("Nombre")]
         public string Name { get; set; }
 
-        [DisplayName("Última Actualización")]
-        public string LastUpdated { get; set; }
+        [DisplayName("Costo")]
+        public string Cost { get; set; }
     }
 }

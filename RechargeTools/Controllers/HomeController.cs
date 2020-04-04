@@ -21,16 +21,16 @@ namespace RechargeTools.Controllers
             model.Agents = new List<Tuple<string, long, long>>();
             model.PendentNumbers = new List<Tuple<string, string>>();
 
-            List<Number> numbers = await applicationDbContext.Numbers.Include("Agent").Where(x => x.Agent.Business_Id == business_working && !string.IsNullOrEmpty(x.Value)).ToListAsync();
+            List<Number> numbers = await applicationDbContext.Numbers.Include("RechargeAgent").Include("RechargeAgent.Agent").Where(x => x.RechargeAgent.Agent.Business_Id == business_working && x.RechargeAgent.Recharge.Activated && !string.IsNullOrEmpty(x.Value)).ToListAsync();
 
-            foreach (var number in numbers.GroupBy(x => x.Agent))
+            foreach (var number in numbers.GroupBy(x => x.RechargeAgent.Agent))
             {
                 model.Agents.Add(new Tuple<string, long, long>(number.Key.Name, number.LongCount(x => string.IsNullOrEmpty(x.Confirmation)), number.LongCount()));
             }
 
             foreach (var number in numbers.Where(x => string.IsNullOrEmpty(x.Confirmation)))
             {
-                model.PendentNumbers.Add(new Tuple<string, string>(number.Value, number.Agent_Id.ToString()));
+                model.PendentNumbers.Add(new Tuple<string, string>(number.Value, number.RechargeAgent.Agent_Id.ToString()));
             }
 
             return View(model);
@@ -48,7 +48,7 @@ namespace RechargeTools.Controllers
 
             ViewBag.number_search = number_search;
 
-            List<Agent> model = await applicationDbContext.Agents.Where(x => x.Activated && x.Business_Id == business_working).OrderBy(x => x.OrderDisplay).ToListAsync();
+            List<Agent> model = await applicationDbContext.RechargeAgents.Where(x => x.Recharge.Activated && x.Agent.Activated && x.Agent.Business_Id == business_working).Select(x => x.Agent).OrderBy(x => x.OrderDisplay).ToListAsync();
 
             return View(model);
         }
@@ -60,10 +60,10 @@ namespace RechargeTools.Controllers
             Guid agent_id = Guid.Parse(filter.type);
             Guid business_working = Guid.Parse(Session["BusinessWorking"].ToString());
             long totalRowsFiltered = 0;
-            long totalRows = await applicationDbContext.Numbers.CountAsync(x => x.Agent_Id == agent_id);
+            long totalRows = await applicationDbContext.Numbers.Include("RechargeAgent").Include("RechargeAgent.Recharge").CountAsync(x => x.RechargeAgent.Agent_Id == agent_id && x.RechargeAgent.Recharge.Activated);
             List<Number> model;
 
-            var entity = applicationDbContext.Numbers.Include("Agent").Include("User").Where(x => x.Agent_Id == agent_id);
+            var entity = applicationDbContext.Numbers.Include("RechargeAgent").Include("RechargeAgent.Agent").Include("RechargeAgent.Recharge").Include("User").Where(x => x.RechargeAgent.Agent_Id == agent_id && x.RechargeAgent.Recharge.Activated);
 
             IOrderedQueryable<Number> sort = null;
             if (filter.order[0].column == 0)
@@ -121,7 +121,7 @@ namespace RechargeTools.Controllers
             else
             {
                 totalRowsFiltered = await
-                   applicationDbContext.Numbers.Include("Agent").Include("User").CountAsync(x => x.Agent_Id == agent_id &&
+                   applicationDbContext.Numbers.Include("RechargeAgent").Include("RechargeAgent.Agent").Include("RechargeAgent.Recharge").Include("User").CountAsync(x => x.RechargeAgent.Agent_Id == agent_id && x.RechargeAgent.Recharge.Activated &&
                    (x.Value.ToString().Contains(filter.search.value) ||
                    x.Confirmation.ToString().Contains(filter.search.value) ||
                    x.User.UserName.ToString().Contains(filter.search.value) ||
@@ -129,7 +129,7 @@ namespace RechargeTools.Controllers
                    x.UpdatedDate.ToString().Contains(filter.search.value)));
 
                 model = await
-                    sort.Where(x => x.Agent_Id == agent_id &&
+                    sort.Where(x => x.RechargeAgent.Agent_Id == agent_id &&
                    (x.Value.ToString().Contains(filter.search.value) ||
                    x.Confirmation.ToString().Contains(filter.search.value) ||
                    x.User.UserName.ToString().Contains(filter.search.value) ||
@@ -157,10 +157,12 @@ namespace RechargeTools.Controllers
 
             if (model.Count == 0)
             {
+                RechargeAgent rechargeAgent = await applicationDbContext.RechargeAgents.FirstOrDefaultAsync(x => x.Agent_Id == agent_id && x.Recharge.Activated);
+
                 Number number = new Number()
                 {
                     Id = Guid.NewGuid(),
-                    Agent_Id = agent_id,
+                    RechargeAgent = rechargeAgent,
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 };
@@ -227,7 +229,7 @@ namespace RechargeTools.Controllers
                 number_temp = new Number()
                 {
                     Id = Guid.NewGuid(),
-                    Agent_Id = number.Agent_Id,
+                    RechargeAgent_Id = number.RechargeAgent_Id,
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 };

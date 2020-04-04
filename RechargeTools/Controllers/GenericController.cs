@@ -41,10 +41,13 @@ namespace RechargeTools.Controllers
                     business_working = user.CurrentBusiness_Id.Value;
                 }
 
+                Recharge recharge = applicationDbContext.Recharges.OrderByDescending(x => x.DateStart).FirstOrDefault(x => x.Activated);
+
                 Session["BusinessWorking"] = business_working;
 
                 ViewBag.Business = businesses;
                 ViewBag.BusinessWorking = businesses.FirstOrDefault(x => x.Id == business_working);
+                ViewBag.Recharge = recharge;
             }
             Session["app_protocol"] = ConfigurationManager.AppSettings.Get("httpProtocol");
         }

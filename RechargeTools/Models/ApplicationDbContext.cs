@@ -37,6 +37,8 @@ namespace RechargeTools.Models
         public DbSet<BusinessUser> BusinessUsers { get; set; }
         public DbSet<ActivityLogType> ActivityLogTypes { get; set; }
         public DbSet<ActivityLog> ActivityLogs { get; set; }
+        public DbSet<Recharge> Recharges { get; set; }
+        public DbSet<RechargeAgent> RechargeAgents { get; set; }
     }
 
     public class Configuration : DbConfiguration

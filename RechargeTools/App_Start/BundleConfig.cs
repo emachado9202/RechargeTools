@@ -25,14 +25,17 @@ namespace RechargeTools
                       "~/Scripts/bootstrap.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/table").Include(
+                "~/Content/DataTables/datatables.min.js",
                 "~/Content/DataTables/extensions/Editor/js/dataTables.editor.min.js"
             ));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
+                      "~/Content/font-awesome.min.css",
                       "~/Content/site.css"));
 
             bundles.Add(new StyleBundle("~/Content/table").Include(
+               "~/Content/DataTables/datatables.min.css",
                "~/Content/DataTables/extensions/Editor/css/editor.dataTables.min.css"
            ));
         }
