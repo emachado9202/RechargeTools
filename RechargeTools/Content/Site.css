@@ -16,11 +16,118 @@
     white-space: normal;
 }
 
-/* Set width on the form input elements since they're 100% wide by default */
-input,
-select,
-textarea {
-    max-width: 280px;
+.card {
+    display: block;
+    margin-bottom: 1.5rem;
+    border-color: #edf2f9;
+    box-shadow: 0 .75rem 1.5rem rgba(18,38,63,.03);
+}
+
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid #edf2f9;
+    border-top-color: rgb(237, 242, 249);
+    border-right-color: rgb(237, 242, 249);
+    border-bottom-color: rgb(237, 242, 249);
+    border-left-color: rgb(237, 242, 249);
+    border-radius: .5rem;
+}
+
+.card-body {
+    flex: 1 1 auto;
+    padding: 1.5rem;
+}
+
+.align-items-center {
+    align-items: center !important;
+}
+
+h6.text-uppercase {
+    letter-spacing: .08em;
+}
+
+.card-title {
+    margin-bottom: .5rem;
+}
+
+.text-muted {
+    color: #95aac9 !important;
+}
+
+.text-uppercase {
+    text-transform: uppercase !important;
+}
+
+.mb-2, .my-2 {
+    margin-bottom: .375rem !important;
+}
+
+.mb-0, .my-0 {
+    margin-bottom: 0 !important;
+}
+
+.badge-soft-success {
+    color: #00d97e;
+    background-color: #ccf7e5;
+}
+
+.badge {
+    vertical-align: middle;
+}
+
+.mt-n1, .my-n1 {
+    margin-top: -.1875rem !important;
+}
+
+.badge {
+    display: inline-block;
+    padding: .33em .5em;
+    font-size: 75%;
+    font-weight: 400;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .375rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+@media (min-width: 1200px) {
+    .col-xl {
+        flex-basis: 0;
+        flex-grow: 1;
+        max-width: 100%;
+    }
+}
+
+.col-auto {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 100%;
+}
+
+.col {
+    flex-basis: 0;
+    flex-grow: 1;
+    max-width: 100%;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -12px;
+    margin-left: -12px;
 }
 
 .dataTables_length {
@@ -39,6 +146,233 @@ table.table-bordered.dataTable.fixedHeader-floating {
     margin-top: 56px !important;
 }
 
-.show-inline {
-    display: inline;
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px; /* Margin bottom by footer height */
+}
+
+main > .container-fluid {
+    padding: 60px 15px 0;
+}
+
+.footer {
+    background-color: #343a40;
+    color: rgba(255, 255, 255, 0.75);
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+    .footer > .container {
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+
+code {
+    font-size: 80%;
+}
+
+.btn-editions a {
+    margin-bottom: -30px;
+}
+
+@media (max-width: 800px) {
+    .btn-editions {
+        width: 100%;
+    }
+
+        .btn-editions a {
+            margin-bottom: 10px;
+        }
+
+    .dataTables_filter {
+        float: left;
+    }
+}
+
+#nav-dashboard .tab-pane {
+    padding-top: 15px;
+}
+
+/*Panel*/
+.panel {
+    border: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.panel-inverse > .panel-heading {
+    background: #242a30;
+}
+
+.panel-inverse > .panel-heading {
+    color: #fff;
+}
+
+.panel-heading {
+    padding: 10px 15px;
+    border: none;
+}
+
+.panel-heading {
+    padding: 10px 15px;
+    border-bottom: 1px solid transparent;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+.panel-title {
+    font-size: 1rem;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+    .panel-title, .panel-title .pull-right {
+        line-height: 20px;
+    }
+
+.panel-body {
+    padding: 15px;
+    background-color: #edf2f9;
+}
+
+/*Index*/
+/*
+ * Dummy devices (replace them with your own or something else entirely!)
+ */
+
+.product-device {
+    position: absolute;
+    right: 10%;
+    bottom: -30%;
+    width: 300px;
+    height: 540px;
+    background-color: #333;
+    border-radius: 21px;
+    -webkit-transform: rotate(30deg);
+    transform: rotate(30deg);
+}
+
+.product-device-2::before {
+    position: absolute;
+    top: 10%;
+    right: 10px;
+    bottom: 10%;
+    left: 10px;
+    content: "";
+    background-image: url('img/stats1.jpg');
+    border-radius: 5px;
+}
+
+.product-device-1::before {
+    position: absolute;
+    top: 10%;
+    right: 10px;
+    bottom: 10%;
+    left: 10px;
+    content: "";
+    background-image: url('img/stats.jpg');
+    border-radius: 5px;
+}
+
+.product-device-2 {
+    top: -25%;
+    right: auto;
+    bottom: 0;
+    left: 5%;
+    background-color: #e5e5e5;
+}
+
+/*
+ * Extra utilities
+ */
+
+.flex-equal > * {
+    -ms-flex: 1;
+    flex: 1;
+}
+
+@media (min-width: 768px) {
+    .flex-md-equal > * {
+        -ms-flex: 1;
+        flex: 1;
+    }
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.pricing-header {
+    max-width: 700px;
+}
+
+.card-deck .card {
+    min-width: 220px;
+}
+
+@media (max-width: 896px) {
+    .col-md-7.mx-auto.mb-3.content {
+        z-index: 1000;
+        background: rgba(0,0,0,0.5);
+        padding-bottom: 23px;
+        color: #fff;
+    }
+
+    .btn.btn-outline-secondary {
+        color: #fff;
+        border-color: #fff;
+    }
+}
+
+.characts-img {
+    width: 80%;
+    height: 300px;
+    border-radius: 21px 21px 0 0;
+}
+
+.img-stats-2 {
+    background-image: url('img/stats2.jpg');
+}
+
+.img-stats-3 {
+    background-image: url('img/stats3.jpg');
+}
+
+.img-stats-4 {
+    background-image: url('img/stats4.jpg');
+}
+
+.img-stats-5 {
+    background-image: url('img/stats5.jpg');
+}
+
+.pending-class {
+    background-color: rgba(75, 153, 240, 0.3) !important;
+}
+
+.nav-pills .nav-item:not(:first-child) {
+    margin-left: 5px;
+}
+
+.nav-pills .nav-item {
+    margin-bottom: 5px;
+}
+
+.nav-pills .nav-link {
+    background-color: #343a40;
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.opacity-0 {
+    opacity: 0;
 }

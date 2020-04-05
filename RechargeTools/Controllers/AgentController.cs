@@ -20,9 +20,17 @@ namespace RechargeTools.Controllers
         }
 
         [HttpGet]
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
-            return View(new Agent());
+            Agent agent = await applicationDbContext.Agents.OrderByDescending(x => x.OrderDisplay).FirstOrDefaultAsync();
+
+            Agent model = new Agent()
+            {
+                OrderDisplay = agent.OrderDisplay + 1,
+                Activated = true
+            };
+
+            return View(model);
         }
 
         [HttpPost]
@@ -65,6 +73,7 @@ namespace RechargeTools.Controllers
                 category.Name = model.Name;
                 category.LastUpdated = DateTime.Now;
                 category.OrderDisplay = model.OrderDisplay;
+                category.Activated = model.Activated;
 
                 applicationDbContext.Entry(category).State = EntityState.Modified;
 

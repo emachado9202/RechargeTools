@@ -193,7 +193,7 @@ namespace RechargeTools.Controllers
         [Models.Handlers.Authorize]
         public async Task<ActionResult> Edit(FormCollection form)
         {
-            string data = form[0];
+            string data = form[0].Trim();
             string key = form.GetKey(0); //data[fb0a6764-7d29-4621-80eb-2cb304de3299][number]
             string[] temp = key.Split('[', ']'); //index 1 and 3
 
@@ -204,11 +204,18 @@ namespace RechargeTools.Controllers
 
             number.User_Id = User.Identity.GetUserId();
             number.UpdatedDate = DateTime.Now;
+
+            bool next = true;
             switch (attr_class)
             {
                 case "number":
                     {
-                        number.Value = data;
+                        if (!string.IsNullOrEmpty(data) && !IsDigitsOnly(data))
+                        {
+                            next = false;
+                        }
+                        if (next)
+                            number.Value = data;
                     }
                     break;
 
@@ -218,23 +225,25 @@ namespace RechargeTools.Controllers
                     }
                     break;
             }
-
-            applicationDbContext.Entry(number).State = System.Data.Entity.EntityState.Modified;
-            await applicationDbContext.SaveChangesAsync();
-
-            Number number_temp = await applicationDbContext.Numbers.FirstOrDefaultAsync(x => x.CreatedDate > number.CreatedDate && string.IsNullOrEmpty(x.Value));
-
-            if (number_temp == null)
+            if (next)
             {
-                number_temp = new Number()
-                {
-                    Id = Guid.NewGuid(),
-                    RechargeAgent_Id = number.RechargeAgent_Id,
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
-                };
-                applicationDbContext.Numbers.Add(number_temp);
+                applicationDbContext.Entry(number).State = System.Data.Entity.EntityState.Modified;
                 await applicationDbContext.SaveChangesAsync();
+
+                Number number_temp = await applicationDbContext.Numbers.FirstOrDefaultAsync(x => x.CreatedDate > number.CreatedDate && string.IsNullOrEmpty(x.Value) && x.RechargeAgent_Id == number.RechargeAgent_Id);
+
+                if (number_temp == null)
+                {
+                    number_temp = new Number()
+                    {
+                        Id = Guid.NewGuid(),
+                        RechargeAgent_Id = number.RechargeAgent_Id,
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    };
+                    applicationDbContext.Numbers.Add(number_temp);
+                    await applicationDbContext.SaveChangesAsync();
+                }
             }
 
             return Json(new
@@ -272,6 +281,8 @@ namespace RechargeTools.Controllers
             return Json(true);
         }
 
+        #region Helpers
+
         private async Task AgentSelectCore(string agent_id)
         {
             Guid business_working = Guid.Parse(Session["BusinessWorking"].ToString());
@@ -283,6 +294,64 @@ namespace RechargeTools.Controllers
             applicationDbContext.Entry(agent).State = System.Data.Entity.EntityState.Modified;
             applicationDbContext.Entry(selected).State = System.Data.Entity.EntityState.Modified;
             await applicationDbContext.SaveChangesAsync();
+        }
+
+        private bool IsDigitsOnly(string str)
+        {
+            foreach (char c in str)
+            {
+                if (c < '0' || c > '9')
+                    return false;
+            }
+
+            return true;
+        }
+
+        #endregion Helpers
+
+        [Models.Handlers.Authorize]
+        [HttpPost]
+        public async Task<ActionResult> AddNumbers(string recharge_id, string agent_id, string data)
+        {
+            Guid agentId = Guid.Parse(agent_id);
+            Guid rechargeId = Guid.Parse(recharge_id);
+
+            RechargeAgent rechargeAgent = await applicationDbContext.RechargeAgents.FirstOrDefaultAsync(x => x.Agent_Id == agentId && x.Recharge_Id == rechargeId);
+
+            string[] numbers = data.Trim().Split('\n');
+
+            string sreturn = "";
+
+            foreach (var temp in numbers)
+            {
+                string number = temp.Replace("+53", "").Trim();
+                if (number.Length == 8 && IsDigitsOnly(number))
+                {
+                    Number add = new Number()
+                    {
+                        Id = Guid.NewGuid(),
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now,
+                        User_Id = User.Identity.GetUserId(),
+                        RechargeAgent_Id = rechargeAgent.Id,
+                        Value = number
+                    };
+                    applicationDbContext.Numbers.Add(add);
+                }
+                else
+                {
+                    sreturn += $"{number}\n";
+                }
+            }
+
+            Number number_empty = await applicationDbContext.Numbers.FirstOrDefaultAsync(x => x.RechargeAgent_Id == rechargeAgent.Id && string.IsNullOrEmpty(x.Value) && string.IsNullOrEmpty(x.Confirmation));
+            number_empty.CreatedDate = DateTime.Now;
+            number_empty.UpdatedDate = DateTime.Now;
+
+            applicationDbContext.Entry(number_empty).State = System.Data.Entity.EntityState.Modified;
+            await applicationDbContext.SaveChangesAsync();
+
+            return Json(sreturn.Length > 2 ? sreturn.Substring(0, sreturn.Length - 1) : "");
         }
     }
 }
