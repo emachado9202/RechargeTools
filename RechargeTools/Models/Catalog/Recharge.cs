@@ -7,11 +7,8 @@ using System.Web;
 
 namespace RechargeTools.Models.Catalog
 {
-    public class Recharge
+    public class Recharge : GenericEntity
     {
-        [Key]
-        public Guid Id { get; set; }
-
         [Required]
         public string Name { get; set; }
 

@@ -39,6 +39,8 @@ namespace RechargeTools.Models
         public DbSet<ActivityLog> ActivityLogs { get; set; }
         public DbSet<Recharge> Recharges { get; set; }
         public DbSet<RechargeAgent> RechargeAgents { get; set; }
+        public DbSet<ScheduleTask> ScheduleTasks { get; set; }
+        public DbSet<ScheduleTaskHistory> ScheduleTaskHistories { get; set; }
     }
 
     public class Configuration : DbConfiguration

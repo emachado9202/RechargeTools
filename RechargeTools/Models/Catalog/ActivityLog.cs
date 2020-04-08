@@ -7,11 +7,8 @@ using System.Web;
 
 namespace RechargeTools.Models.Catalog
 {
-    public class ActivityLog
+    public class ActivityLog : GenericEntity
     {
-        [Key]
-        public Guid Id { get; set; }
-
         [ForeignKey("Business")]
         public Guid Business_Id { get; set; }
 

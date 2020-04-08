@@ -7,11 +7,8 @@ using System.Web;
 
 namespace RechargeTools.Models.Catalog
 {
-    public class RechargeAgent
+    public class RechargeAgent : GenericEntity
     {
-        [Key]
-        public Guid Id { get; set; }
-
         [ForeignKey("Agent")]
         [Required]
         public Guid Agent_Id { get; set; }

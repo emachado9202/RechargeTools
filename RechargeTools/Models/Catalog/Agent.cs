@@ -4,11 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RechargeTools.Models.Catalog
 {
-    public class Agent
+    public class Agent : GenericEntity
     {
-        [Key]
-        public Guid Id { get; set; }
-
         public string Name { get; set; }
 
         public bool Activated { get; set; }

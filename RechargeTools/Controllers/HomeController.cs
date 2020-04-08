@@ -13,6 +13,11 @@ namespace RechargeTools.Controllers
 {
     public class HomeController : GenericController
     {
+        public async Task<string> Run()
+        {
+            return "procesando";
+        }
+
         [Models.Handlers.Authorize]
         public async Task<ActionResult> Dashboard()
         {

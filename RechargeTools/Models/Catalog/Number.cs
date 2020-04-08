@@ -6,9 +6,8 @@ using System.Web;
 
 namespace RechargeTools.Models.Catalog
 {
-    public class Number
+    public class Number : GenericEntity
     {
-        public Guid Id { get; set; }
         public string Value { get; set; }
         public string Confirmation { get; set; }
 

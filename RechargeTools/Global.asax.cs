@@ -1,6 +1,8 @@
-﻿using System;
+﻿using log4net.Config;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Web;
@@ -24,6 +26,15 @@ namespace RechargeTools
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            InitLogs();
+        }
+
+        private void InitLogs()
+        {
+            string xmlFile = Server.MapPath(@"Config\Log4j.config");
+
+            XmlConfigurator.ConfigureAndWatch(new FileInfo(xmlFile));
         }
     }
 }
