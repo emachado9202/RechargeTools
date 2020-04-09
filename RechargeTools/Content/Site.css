@@ -158,7 +158,7 @@ body {
 }
 
 main > .container-fluid {
-    padding: 60px 15px 0;
+    padding: 30px 15px 0;
 }
 
 .footer {
@@ -192,7 +192,7 @@ code {
         }
 
     .dataTables_filter {
-        float: left;
+        float: right;
     }
 }
 
@@ -375,4 +375,10 @@ code {
 
 .opacity-0 {
     opacity: 0;
+}
+
+.btn-default:hover, .btn.btn-default {
+    color: #fff;
+    background: #b6c2c9;
+    border-color: #b6c2c9;
 }

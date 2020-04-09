@@ -338,6 +338,10 @@
     <Content Include="Content\DataTables\extensions\Editor\js\editor.semanticui.js" />
     <Content Include="Content\DataTables\extensions\Editor\js\editor.semanticui.min.js" />
     <Content Include="Content\font-awesome.min.css" />
+    <Content Include="Content\tln\tln.css" />
+    <Content Include="Content\tln\tln.js" />
+    <Content Include="Content\tln\tln.min.css" />
+    <Content Include="Content\tln\tln.min.js" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />

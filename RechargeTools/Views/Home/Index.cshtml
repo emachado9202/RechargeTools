@@ -9,57 +9,74 @@
 <input type="hidden" value="@ViewBag.number_search" id="number_search" />
 <div class="row">
     <div class="col-12">
-        <ul class="nav nav-pills" id="myTab" role="tablist">
+
+        <select id="agent-selected" class="form-control form-control-lg custom-select custom-select-lg">
             @foreach (var agent in Model)
             {
-                <li class="nav-item">
-                    <a class="nav-link @(agent.Selected ? "active": "")" id="tab-@agent.Id" data-toggle="tab" data-value="@agent.Id" href="#content-@agent.Id" role="tab" aria-controls="content-@agent.Id" aria-selected="@agent.Selected">@agent.Name</a>
-                </li>
+                <option value="@agent.Id" @(agent.Selected ? "selected" : "")>@agent.Name</option>
             }
-        </ul>
-        <div class="tab-content" id="myTabContent">
-            @foreach (var agent in Model)
-            {
-                <div class="tab-pane fade @(agent.Selected ? "show active": "")" id="content-@agent.Id" role="tabpanel" aria-labelledby="tab-@agent.Id" data-value="@agent.Id">
+        </select>
+        <div class="row" id="form_lot">
+            <div class="col">
+                <h2 class="text-center">Insertar Números</h2>
+                <p class="text-muted text-center">
+                    Insertar uno por línea
+                </p>
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <textarea class="w-100 form-control" inputmode="verbatim" rows="5"></textarea>
+                        <p class="text-danger" style="display:none;">Estos números no pudieron insertarse porque contienen error</p>
+                    </div>
+                    <div class="form-group text-center">
+                        <a class="btn btn-dark" href="javascript:register_numbers();">Agregar</a>
+                    </div>
                 </div>
-            }
+            </div>
         </div>
         <div class="pull-right btn-editions">
-
-            <a class="btn-copy btn btn-success btn-sm ml-lg-1" href="javascript:copy_numbers();">Copiar Números</a>
+            <a class="btn-copy btn btn-success btn-sm ml-lg-1 pull-left" href="javascript:copy_numbers();">Copiar Pendientes</a>
+            <select id="copy-length" class="custom-select custom-select-sm form-control form-control-sm w-25 ml-1 pull-left">
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="0">Todos</option>
+            </select>
+            <a class="btn-copy btn btn-dark btn-sm ml-lg-1 pull-left ml-1" href="javascript:reorganize_consecutives();">Ord. Consec.</a>
         </div>
-        <table id="data-table" class="table table-striped table-bordered" width="100%">
+        <table id="data-table" class="table table-striped table-bordered">
             <thead>
                 <tr>
-                    <th>Número</th>
-                    <th>Confirmación</th>
-                    <th class="no-sort">Usuario</th>
-                    <th>Creado</th>
-                    <th>Actualizado</th>
-                    <th class="no-sort"></th>
+                    <th data-priority="1">Cons</th>
+                    <th data-priority="1">Número</th>
+                    <th data-priority="1">Confirmación</th>
+                    <th class="no-sort" data-priority="2">Usuario</th>
+                    <th data-priority="2">Creado</th>
+                    <th data-priority="2">Actualizado</th>
+                    <th data-priority="2" class="no-sort"></th>
                 </tr>
             </thead>
         </table>
     </div>
 </div>
-<div class="row" id="form_lot">
-    <div class="col">
-        <h2 class="text-center">Insertar Lote</h2>
-        <p class="text-muted text-center">
-            Insertar uno por línea
-        </p>
-        <div class="form-horizontal">
-            <div class="form-group">
-                <textarea class="w-100 form-control" inputmode="verbatim"></textarea>
-                <p class="text-danger" style="display:none;">Estos números no pudieron insertarse porque contienen error</p>
+
+<div class="modal fade" id="copyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Nuevo Trabajador</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <div class="form-group text-center">
-                <a class="btn btn-dark" href="javascript:register_numbers();">Registrar</a>
+            <div class="modal-body text-center">
+                <textarea type="text" id="numbers_to_clipboard" rows="10"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" data-dismiss="modal" onclick="send_mark();">Marcar Confirmación</button>
             </div>
         </div>
     </div>
 </div>
-<textarea type="text" id="numbers_to_clipboard" class="opacity-0"></textarea>
 
 @section scripts{
 
@@ -67,6 +84,41 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+            reorganize_consecutives = function () {
+                $.ajax({
+                    type: 'POST',
+                    data: {
+                        recharge_id: '@ViewBag.Recharge.Id',
+                        agent_id: $("#agent-selected").val()
+                    },
+                    url: "/Home/ReorganizeConsecutives",
+                    dataType: 'json',
+                    success: function (data) {
+                        $("#numbers_to_clipboard").val("");
+                        TLN.remove_line_numbers('numbers_to_clipboard');
+                        table.ajax.reload();
+                    }
+                });
+            };
+
+            send_mark = function () {
+                $.ajax({
+                    type: 'POST',
+                    data: {
+                        recharge_id: '@ViewBag.Recharge.Id',
+                        agent_id: $("#agent-selected").val(),
+                        data: $("#numbers_to_clipboard").val()
+                    },
+                    url: "/Home/UpdateNumbers",
+                    dataType: 'json',
+                    success: function (data) {
+                        $("#numbers_to_clipboard").val("");
+                        TLN.remove_line_numbers('numbers_to_clipboard');
+                        table.ajax.reload();
+                    }
+                });
+            };
+
             register_numbers = function () {
                 $("#form_lot textarea").addClass("disabled");
                 $("#form_lot textarea").attr("disabled", "true");
@@ -77,7 +129,7 @@
                     type: 'POST',
                     data: {
                         recharge_id: '@ViewBag.Recharge.Id',
-                        agent_id: $("#myTabContent .show.active").data("value"),
+                        agent_id: $("#agent-selected").val(),
                         data: $("#form_lot textarea").val()
                     },
                     url: "/Home/AddNumbers",
@@ -95,11 +147,11 @@
                 });
             };
 
-            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            $('#agent-selected').on('change', function (e) {
                 $.ajax({
                     type: 'POST',
                     data: {
-                        agent_id: $(e.target).data("value")
+                        agent_id: $(this).val()
                     },
                     url: "/Home/AgentSelect",
                     dataType: 'json',
@@ -109,6 +161,20 @@
                 });
             });
 
+            change_row = function (id) {
+                $.ajax({
+                    type: 'POST',
+                    data: {
+                        id: id
+                    },
+                    url: "/Home/Change",
+                    dataType: 'json',
+                    success: function (data) {
+                        table.ajax.reload();
+                    }
+                });
+            }
+
             var editor;
 
             editor = new $.fn.dataTable.Editor({
@@ -117,9 +183,6 @@
                 fields: [{
                     label: "Number:",
                     name: "number"
-                }, {
-                    label: "Confirmation:",
-                    name: "confirmation"
                 }
                 ],
                 formOptions: {
@@ -130,10 +193,8 @@
             });
 
             // Activate an inline edit on click of a table cell
-            $('#data-table').on('click', 'tbody td:not(:last-child)', function (e) {
-                if ($(this).next().length != 0) {
-                    editor.inline(this);
-                }
+            $('#data-table').on('click', 'tbody td:nth-child(2)', function (e) {
+                editor.inline(this);
             });
 
             var table = $("#data-table").DataTable({
@@ -145,14 +206,23 @@
                     "url": "/Home/Search",
                     "type": "POST",
                     "data": function (d) {
-                        d.type = $("#myTabContent .show.active").data("value")
+                        d.type = $("#agent-selected").val()
                     }
                 },
                 "processing": true,
                 "serverSide": true,
                 columns: [
+                    { data: "consecutive" },
                     { data: "number" },
-                    { data: "confirmation" },
+                    {
+                        "render": function (data, type, JsonResultRow, meta) {
+                            var actions = "";
+                            if (JsonResultRow.number !== '' && JsonResultRow.number !== null) {
+                                actions += '<a class=\'btn ' + (JsonResultRow.confirmation === "False" ? 'btn-default' : 'btn-success') + ' btn-sm\' href=\'javascript:change_row("' + JsonResultRow.DT_RowId + '");\'><i class=\'fa fa-check\'></i></a><br />';
+                            }
+                            return actions;
+                        }
+                    },
                     { data: "user" },
                     { data: "created_date" },
                     { data: "updated_date" },
@@ -172,10 +242,10 @@
                 "iDisplayLength": 25,
                 "language": {
                     "sProcessing": "Procesando...",
-                    "sLengthMenu": "Mostrar _MENU_ registros",
+                    "sLengthMenu": "Mostrar _MENU_",
                     "sZeroRecords": "No se encontraron resultados",
                     "sEmptyTable": "Ningún dato disponible en esta tabla",
-                    "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                    "sInfo": "Mostrando del _START_ al _END_ de un total de _TOTAL_ registros",
                     "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
                     "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
                     "sInfoPostFix": "",
@@ -194,14 +264,14 @@
                         "sSortDescending": ": Activar para ordenar la columna de manera descendente"
                     },
                     "select": {
-                        "rows": "%d registros seleccionados"
+                        "rows": ""
                     }
                 },
                 "columnDefs": [{
                     "targets": 'no-sort',
                     "orderable": false
                 }],
-                "order": [[3, "desc"]],
+                "order": [[0, "desc"]],
                 select: {
                     style: 'os',
                     selector: 'td:first-child'
@@ -226,18 +296,24 @@
             $("#data-table_filter input").keyup();
 
             copy_numbers = function () {
-                var value = "";
-                table.rows().every(function (index, element) {
-                    var data = this.data();
-                    if (data.number != null && data.confirmation == null) {
+                var value = "", cont = 0, copy_length = parseInt( $("#copy-length").val());
+                console.log(copy_length);
+
+                table.data().reverse().each(function (data, index) {
+                    if (data.number != null && data.confirmation === "False") {
+
+                        if (cont == copy_length && copy_length!=0) {
+                            console.log(cont);
+                            return false;
+                        }
                         value += data.number + "\n";
+                        cont++;
                     }
                 });
                 $("#numbers_to_clipboard").val(value);
-                var copyText = document.getElementById("numbers_to_clipboard");
-                copyText.select();
-                copyText.setSelectionRange(0, 99999);
-                document.execCommand("copy");
+                TLN.remove_line_numbers('numbers_to_clipboard');
+                TLN.append_line_numbers('numbers_to_clipboard');
+                $("#copyModal").modal("show");
             }
 
         });

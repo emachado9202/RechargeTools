@@ -1,15 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 
 namespace RechargeTools.Models.Catalog
 {
     public class Number : GenericEntity
     {
         public string Value { get; set; }
-        public string Confirmation { get; set; }
+
+        [Index("IX_Number_Consecutive", 1)]
+        public int Consecutive { get; set; }
+
+        [Index("IX_Number_Confirmation", 0)]
+        public bool Confirmation { get; set; }
+
+        [StringLength(100)]
+        public string Description { get; set; }
 
         [ForeignKey("RechargeAgent")]
         public Guid RechargeAgent_Id { get; set; }

@@ -23,17 +23,17 @@ namespace RechargeTools.Controllers
         {
             Guid business_working = Guid.Parse(Session["BusinessWorking"].ToString());
             DashboardViewModel model = new DashboardViewModel();
-            model.Agents = new List<Tuple<string, long, long>>();
+            model.Agents = new List<Tuple<string, long, long, string, string>>();
             model.PendentNumbers = new List<Tuple<string, string>>();
 
             List<Number> numbers = await applicationDbContext.Numbers.Include("RechargeAgent").Include("RechargeAgent.Agent").Where(x => x.RechargeAgent.Agent.Business_Id == business_working && x.RechargeAgent.Recharge.Activated && !string.IsNullOrEmpty(x.Value)).ToListAsync();
 
-            foreach (var number in numbers.GroupBy(x => x.RechargeAgent.Agent))
+            foreach (var number in numbers.GroupBy(x => x.RechargeAgent))
             {
-                model.Agents.Add(new Tuple<string, long, long>(number.Key.Name, number.LongCount(x => string.IsNullOrEmpty(x.Confirmation)), number.LongCount()));
+                model.Agents.Add(new Tuple<string, long, long, string, string>(number.Key.Agent.Name, number.LongCount(x => !x.Confirmation), number.LongCount(), "", (number.Key.Cost * number.LongCount()).ToString("#,##0.00")));
             }
 
-            foreach (var number in numbers.Where(x => string.IsNullOrEmpty(x.Confirmation)))
+            foreach (var number in numbers.Where(x => !x.Confirmation))
             {
                 model.PendentNumbers.Add(new Tuple<string, string>(number.Value, number.RechargeAgent.Agent_Id.ToString()));
             }
@@ -59,6 +59,26 @@ namespace RechargeTools.Controllers
         }
 
         [HttpPost]
+        public async Task<ActionResult> ReorganizeConsecutives(string recharge_id, string agent_id)
+        {
+            Guid agentId = Guid.Parse(agent_id);
+            Guid rechargeId = Guid.Parse(recharge_id);
+
+            List<Number> numbers = await applicationDbContext.Numbers.Include("RechargeAgent").Where(x => x.RechargeAgent.Agent_Id == agentId && x.RechargeAgent.Recharge_Id == rechargeId).OrderBy(x => x.CreatedDate).ToListAsync();
+
+            int cont = 1;
+            foreach (var number in numbers)
+            {
+                number.Consecutive = cont++;
+
+                applicationDbContext.Entry(number).State = System.Data.Entity.EntityState.Modified;
+            }
+            await applicationDbContext.SaveChangesAsync();
+
+            return Json(true);
+        }
+
+        [HttpPost]
         [Models.Handlers.Authorize]
         public async Task<ActionResult> Search(TableFilterViewModel filter)
         {
@@ -75,6 +95,17 @@ namespace RechargeTools.Controllers
             {
                 if (filter.order[0].dir.Equals("asc"))
                 {
+                    sort = entity.OrderBy(x => x.Consecutive);
+                }
+                else
+                {
+                    sort = entity.OrderByDescending(x => x.Consecutive);
+                }
+            }
+            else if (filter.order[0].column == 1)
+            {
+                if (filter.order[0].dir.Equals("asc"))
+                {
                     sort = entity.OrderBy(x => x.Value);
                 }
                 else
@@ -82,7 +113,7 @@ namespace RechargeTools.Controllers
                     sort = entity.OrderByDescending(x => x.Value);
                 }
             }
-            else if (filter.order[0].column == 1)
+            else if (filter.order[0].column == 2)
             {
                 if (filter.order[0].dir.Equals("asc"))
                 {
@@ -93,7 +124,7 @@ namespace RechargeTools.Controllers
                     sort = entity.OrderByDescending(x => x.Confirmation);
                 }
             }
-            else if (filter.order[0].column == 3)
+            else if (filter.order[0].column == 4)
             {
                 if (filter.order[0].dir.Equals("asc"))
                 {
@@ -104,7 +135,7 @@ namespace RechargeTools.Controllers
                     sort = entity.OrderByDescending(x => x.CreatedDate);
                 }
             }
-            else if (filter.order[0].column == 4)
+            else if (filter.order[0].column == 5)
             {
                 if (filter.order[0].dir.Equals("asc"))
                 {
@@ -128,6 +159,7 @@ namespace RechargeTools.Controllers
                 totalRowsFiltered = await
                    applicationDbContext.Numbers.Include("RechargeAgent").Include("RechargeAgent.Agent").Include("RechargeAgent.Recharge").Include("User").CountAsync(x => x.RechargeAgent.Agent_Id == agent_id && x.RechargeAgent.Recharge.Activated &&
                    (x.Value.ToString().Contains(filter.search.value) ||
+                   x.Consecutive.ToString().Contains(filter.search.value) ||
                    x.Confirmation.ToString().Contains(filter.search.value) ||
                    x.User.UserName.ToString().Contains(filter.search.value) ||
                    x.CreatedDate.ToString().Contains(filter.search.value) ||
@@ -136,6 +168,7 @@ namespace RechargeTools.Controllers
                 model = await
                     sort.Where(x => x.RechargeAgent.Agent_Id == agent_id &&
                    (x.Value.ToString().Contains(filter.search.value) ||
+                   x.Consecutive.ToString().Contains(filter.search.value) ||
                    x.Confirmation.ToString().Contains(filter.search.value) ||
                    x.User.UserName.ToString().Contains(filter.search.value) ||
                    x.CreatedDate.ToString().Contains(filter.search.value) ||
@@ -152,10 +185,11 @@ namespace RechargeTools.Controllers
                 result.Add(new NumberViewModel()
                 {
                     DT_RowId = number.Id.ToString(),
+                    consecutive = number.Consecutive.ToString("###000"),
                     number = number.Value,
                     created_date = number.CreatedDate.ToString("yyyy-MM-dd hh:mm tt"),
                     updated_date = number.UpdatedDate.ToString("yyyy-MM-dd hh:mm tt"),
-                    confirmation = number.Confirmation,
+                    confirmation = number.Confirmation.ToString(),
                     user = number.User?.UserName
                 });
             }
@@ -169,7 +203,8 @@ namespace RechargeTools.Controllers
                     Id = Guid.NewGuid(),
                     RechargeAgent = rechargeAgent,
                     CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
+                    UpdatedDate = DateTime.Now,
+                    Consecutive = 1
                 };
                 applicationDbContext.Numbers.Add(number);
                 await applicationDbContext.SaveChangesAsync();
@@ -177,10 +212,11 @@ namespace RechargeTools.Controllers
                 result.Add(new NumberViewModel()
                 {
                     DT_RowId = number.Id.ToString(),
+                    consecutive = number.Consecutive.ToString("###000"),
                     number = number.Value,
                     created_date = number.CreatedDate.ToString("yyyy-MM-dd hh:mm tt"),
                     updated_date = number.UpdatedDate.ToString("yyyy-MM-dd hh:mm tt"),
-                    confirmation = number.Confirmation,
+                    confirmation = number.Confirmation.ToString(),
                     user = number.User?.UserName
                 });
             }
@@ -226,7 +262,7 @@ namespace RechargeTools.Controllers
 
                 case "confirmation":
                     {
-                        number.Confirmation = data;
+                        number.Confirmation = bool.Parse(data);
                     }
                     break;
             }
@@ -244,7 +280,8 @@ namespace RechargeTools.Controllers
                         Id = Guid.NewGuid(),
                         RechargeAgent_Id = number.RechargeAgent_Id,
                         CreatedDate = DateTime.Now,
-                        UpdatedDate = DateTime.Now
+                        UpdatedDate = DateTime.Now,
+                        Consecutive = number.Consecutive + 1
                     };
                     applicationDbContext.Numbers.Add(number_temp);
                     await applicationDbContext.SaveChangesAsync();
@@ -256,10 +293,11 @@ namespace RechargeTools.Controllers
                 data = new NumberViewModel()
                 {
                     DT_RowId = number.Id.ToString(),
+                    consecutive = number.Consecutive.ToString("###000"),
                     number = number.Value,
                     created_date = number.CreatedDate.ToString("yyyy-MM-dd hh:mm tt"),
                     updated_date = number.UpdatedDate.ToString("yyyy-MM-dd hh:mm tt"),
-                    confirmation = number.Confirmation,
+                    confirmation = number.Confirmation.ToString(),
                     user = number.User?.UserName
                 }
             });
@@ -281,6 +319,21 @@ namespace RechargeTools.Controllers
             Guid number_id = Guid.Parse(id);
 
             applicationDbContext.Numbers.Remove(await applicationDbContext.Numbers.FirstOrDefaultAsync(x => x.Id == number_id));
+            await applicationDbContext.SaveChangesAsync();
+
+            return Json(true);
+        }
+
+        [Models.Handlers.Authorize]
+        [HttpPost]
+        public async Task<ActionResult> Change(string id)
+        {
+            Guid number_id = Guid.Parse(id);
+
+            Number number = await applicationDbContext.Numbers.FirstOrDefaultAsync(x => x.Id == number_id);
+            number.Confirmation = !number.Confirmation;
+
+            applicationDbContext.Entry(number).State = System.Data.Entity.EntityState.Modified;
             await applicationDbContext.SaveChangesAsync();
 
             return Json(true);
@@ -316,6 +369,28 @@ namespace RechargeTools.Controllers
 
         [Models.Handlers.Authorize]
         [HttpPost]
+        public async Task<ActionResult> UpdateNumbers(string recharge_id, string agent_id, string data)
+        {
+            Guid agentId = Guid.Parse(agent_id);
+            Guid rechargeId = Guid.Parse(recharge_id);
+
+            string[] numbers = data.Trim().Split('\n');
+
+            foreach (var temp in numbers)
+            {
+                Number number = await applicationDbContext.Numbers.Include("RechargeAgent").FirstOrDefaultAsync(x => x.RechargeAgent.Agent_Id == agentId && x.RechargeAgent.Recharge_Id == rechargeId && !x.Confirmation && x.Value == temp);
+
+                number.Confirmation = true;
+
+                applicationDbContext.Entry(number).State = System.Data.Entity.EntityState.Modified;
+            }
+            await applicationDbContext.SaveChangesAsync();
+
+            return Json(true);
+        }
+
+        [Models.Handlers.Authorize]
+        [HttpPost]
         public async Task<ActionResult> AddNumbers(string recharge_id, string agent_id, string data)
         {
             Guid agentId = Guid.Parse(agent_id);
@@ -326,6 +401,8 @@ namespace RechargeTools.Controllers
             string[] numbers = data.Trim().Split('\n');
 
             string sreturn = "";
+
+            Number number_empty = await applicationDbContext.Numbers.FirstOrDefaultAsync(x => x.RechargeAgent_Id == rechargeAgent.Id && !x.Confirmation && string.IsNullOrEmpty(x.Value));
 
             foreach (var temp in numbers)
             {
@@ -339,7 +416,8 @@ namespace RechargeTools.Controllers
                         UpdatedDate = DateTime.Now,
                         User_Id = User.Identity.GetUserId(),
                         RechargeAgent_Id = rechargeAgent.Id,
-                        Value = number
+                        Value = number,
+                        Consecutive = number_empty.Consecutive++
                     };
                     applicationDbContext.Numbers.Add(add);
                 }
@@ -349,7 +427,6 @@ namespace RechargeTools.Controllers
                 }
             }
 
-            Number number_empty = await applicationDbContext.Numbers.FirstOrDefaultAsync(x => x.RechargeAgent_Id == rechargeAgent.Id && string.IsNullOrEmpty(x.Value) && string.IsNullOrEmpty(x.Confirmation));
             number_empty.CreatedDate = DateTime.Now;
             number_empty.UpdatedDate = DateTime.Now;
 

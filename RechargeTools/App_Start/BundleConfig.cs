@@ -26,7 +26,8 @@ namespace RechargeTools
 
             bundles.Add(new ScriptBundle("~/bundles/table").Include(
                 "~/Content/DataTables/datatables.min.js",
-                "~/Content/DataTables/extensions/Editor/js/dataTables.editor.min.js"
+                "~/Content/DataTables/extensions/Editor/js/dataTables.editor.min.js",
+                "~/Content/tln/tln.min.js"
             ));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
@@ -36,7 +37,8 @@ namespace RechargeTools
 
             bundles.Add(new StyleBundle("~/Content/table").Include(
                "~/Content/DataTables/datatables.min.css",
-               "~/Content/DataTables/extensions/Editor/css/editor.dataTables.min.css"
+               "~/Content/DataTables/extensions/Editor/css/editor.dataTables.min.css",
+               "~/Content/tln/tln.min.css"
            ));
         }
     }

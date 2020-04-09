@@ -14,22 +14,30 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row align-items-center">
-                        <div class="col">
+                        <div class="col align-items-center">
 
                             <!-- Title -->
-                            <h6 class="card-title text-uppercase mb-2">
+                            <h5 class="card-title text-uppercase text-center mb-2">
                                 @agent.Item1
-                            </h6>
-
-                            <!-- Heading -->
-                            <span class="h2 mb-0">
-                                @agent.Item2 <i class="fa fa-caret-right"></i> @agent.Item3
+                            </h5>
+                            <span class="h2 mb-0 pull-left">
+                                <span class="text-danger">
+                                    @agent.Item2
+                                </span> <i class="fa fa-caret-right"></i> <span class="text-success">@agent.Item3</span>
+                            </span>
+                            <br />
+                            <br />
+                            <span class="h2 mb-0 pull-left">
+                                <span class="text-warning">
+                                    $@agent.Item4
+                                </span><i class="fa fa-caret-right"></i> <span class="text-success">
+                                    $@agent.Item5
+                                </span>
                             </span>
                         </div>
                         <div class="col-auto">
-
                             <!-- Icon -->
-                            <span class="h2 fa fa-4x fa-call text-muted mb-0"></span>
+                            <span class="h2 fa fa-4x fa-android text-muted mb-0"></span>
                         </div>
                     </div> <!-- / .row -->
                 </div>
